@@ -12,25 +12,28 @@ import (
 	"time"
 )
 
-type ProxyServer struct {
-	targetHost string
-	cache      *Cache
-	defaultTTL time.Duration
+type ProxyServer struct { //Represents the proxy server.
+	targetHost string        //targetHost: The upstream server where requests are forwarded.
+	cache      *Cache        //A Cache instance for storing responses.
+	defaultTTL time.Duration //The default time-to-live (TTL) for cached data.
 }
 
-type Cache struct {
-	store map[string]CacheEntry
-	mu    sync.RWMutex
+type Cache struct { //Stores cached data and handles cache operations.
+	store map[string]CacheEntry //store: A map with keys (unique identifiers) and values (cached entries).
+	mu    sync.RWMutex          //A mutex to ensure thread-safe access to the cache.
 }
 
-type CacheEntry struct {
-	Response []byte
-	Headers  http.Header
-	TTL      time.Duration
-	Created  time.Time
+type CacheEntry struct { //Represents a single cache entry.
+
+	Response []byte        //Response: The response body.
+	Headers  http.Header   //Headers: HTTP headers for the response.
+	TTL      time.Duration //TTL: Duration for which the entry is valid.
+	Created  time.Time     //Created: Timestamp when the entry was cached.
 }
 
 func generateCacheKey(r *http.Request) string {
+	/* Generates a unique cache key for each HTTP request.
+	Combines the request URL and method, hashed using MD5.*/
 	hasher := md5.New()
 	io.WriteString(hasher, r.URL.String())
 	io.WriteString(hasher, r.Method)
@@ -38,6 +41,7 @@ func generateCacheKey(r *http.Request) string {
 }
 
 func (c *Cache) Get(cacheKey string) (CacheEntry, bool) {
+	/* Fetches a cache entry if it exists and hasn’t expired. Deletes expired entries.*/
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	entry, found := c.store[cacheKey]
@@ -52,12 +56,29 @@ func (c *Cache) Get(cacheKey string) (CacheEntry, bool) {
 }
 
 func (c *Cache) Set(key string, cacheData CacheEntry) {
+	// Stores a new cache entry.
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	c.store[key] = cacheData
 }
 
+func (c *Cache) ClearCache() {
+	//Clears all entries in the cache.
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	for k := range c.store {
+		delete(c.store, k)
+	}
+}
+
 func (p *ProxyServer) handleProxy(w http.ResponseWriter, r *http.Request) {
+	/*
+		Handles incoming requests.
+		First checks the cache for a response:
+		If a cache hit occurs, the response is served directly with an X-Cache: HIT header.
+		On a cache miss, the request is forwarded to the targetHost, and the response is cached for future requests.
+		Responses include headers and the body from the upstream server.
+	*/
 	key := generateCacheKey(r)
 	if entry, found := p.cache.Get(key); found {
 		log.Printf("Cache hit for %s", r.URL.Path)
@@ -112,18 +133,11 @@ func (p *ProxyServer) handleProxy(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *ProxyServer) clearCacheHandler(w http.ResponseWriter, r *http.Request) {
+	// A dedicated endpoint (/clear-cache) to clear all cached entries.
 	p.cache.ClearCache()
 	log.Println("Cache cleared")
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("Cache cleared"))
-}
-
-func (c *Cache) ClearCache() {
-	c.mu.RLock()
-	defer c.mu.RUnlock()
-	for k := range c.store {
-		delete(c.store, k)
-	}
 }
 
 func main() {
