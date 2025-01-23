@@ -15,10 +15,7 @@ Eg.
 ```bash
 go run main.go -target=https://dummyjson.com -port=8080 -ttl=5m
 ```
-Send a GET request to
-```http://localhost:8080/clear-cache
-```
-to clear all cache entries.
+Send a GET request to "http://localhost:8080/clear-cache" to clear all cache entries.
 
 ##HTTP Request Flow
 
