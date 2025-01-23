@@ -9,7 +9,7 @@ A basic CLI tool that starts a caching proxy server, it will forward requests to
 1. Clone this repo locally & move into the cloned folder
 2. Run the server using
 ```bash
- go run main.go --target={} --port={} --ttl={}
+ go run main.go -target={} -port={} -ttl={}
 ```
 Eg. 
 ```bash
