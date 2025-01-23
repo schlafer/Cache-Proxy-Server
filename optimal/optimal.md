@@ -21,6 +21,7 @@
 -   There’s no limit on the cache size, which may lead to excessive memory usage.
 
 ##  Optimizations Implemented in optimal.go
+
 1.  Improved Error Handling
 
 -   All errors are properly logged and handled gracefully, responding with appropriate HTTP status codes.
