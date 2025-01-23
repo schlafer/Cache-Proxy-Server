@@ -1,4 +1,4 @@
-## Issues with main.go and Improvements in optimal.go
+## Potential Issues and Improvements in main.go
 
 1.  Error Handling
 
@@ -19,3 +19,28 @@
 5.  Cache Size Management
 
 -   There’s no limit on the cache size, which may lead to excessive memory usage.
+
+##  Optimizations Implemented in optimal.go
+1.  Improved Error Handling
+
+-   All errors are properly logged and handled gracefully, responding with appropriate HTTP status codes.
+
+2.  Header Management
+
+-   A utility function copyHeaders ensures that headers are copied correctly without mixing client and server headers.
+
+3.  Concurrency Optimization
+
+-   The cache uses a channel-based eviction mechanism to remove the oldest entries when the cache reaches its size limit.
+
+4.  Cache Size Management
+
+-   Introduced a maxSize limit to the cache and used a channel (eviction) to track the order of insertion for eviction.
+
+5.  Timeouts
+
+-   Added a 10-second timeout to the HTTP client to prevent requests from hanging indefinitely.
+
+6.  Flexibility
+
+-   Cache size and TTL are configurable via command-line arguments.
