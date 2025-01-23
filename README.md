@@ -1,10 +1,10 @@
-# Caching Proxy Server
+#   Caching Proxy Server
 
-## Overview
+##  Overview
 
 A basic CLI tool that starts a caching proxy server, it will forward requests to the actual server and cache the responses. If the same request is made again, it will return the cached response instead of forwarding the request to the server.
 [](https://roadmap.sh/projects/caching-server)
-## Installation
+##  Installation
 
 1. Clone this repo locally & move into the cloned folder
 2. Run the server using
@@ -17,7 +17,7 @@ go run main.go -target=https://dummyjson.com -port=8080 -ttl=5m
 ```
 Send a GET request to "http://localhost:8080/clear-cache" to clear all cache entries.
 
-##HTTP Request Flow
+##  HTTP Request Flow
 
 1. A client sends a request to the proxy server.
 2. The server computes a cache key using generateCacheKey.
@@ -29,7 +29,7 @@ Send a GET request to "http://localhost:8080/clear-cache" to clear all cache ent
         - The upstream server's response is cached for future use.
 4. The server responds to the client with the data.
 
-## Program Flow
+##  Program Flow
 
 1. Startup
 -   Command-line arguments are parsed:
@@ -47,6 +47,6 @@ Send a GET request to "http://localhost:8080/clear-cache" to clear all cache ent
 -   Logs server startup and configuration details.
 
 
-## License
+##  License
 
 [MIT](https://choosealicense.com/licenses/mit/)
